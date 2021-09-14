@@ -157,7 +157,8 @@ contract RarityArena {
     {
         // todo add the fight code
         uint256[6] memory _opponent = hfp.formats[_opponent_index];
-        return true;
+        return _me[0] == _opponent[0];
+        // return true;
     }
 
     function new_season() public {

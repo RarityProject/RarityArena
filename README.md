@@ -1,2 +1,2 @@
 # RarityArena
-A PVP arena based on Rarity.
+A PVP and PVE arena based on Rarity.
