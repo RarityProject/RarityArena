@@ -71,7 +71,8 @@ contract RarityArena {
     uint256 daily_reward = 1000 * 10**18;
     uint256 reward_limit = 10**10;
     uint256 constant season_duration = 21 days;
-    uint256 constant pool_max = 10000;
+    uint256 constant pool_capacity = 8192;
+    uint256 pool_max_size = 128;
     uint256 dat_start = 0;
     address[10] public winers;
     address beneficiary;
@@ -88,12 +89,12 @@ contract RarityArena {
         uint256 season;
         uint256 season_log;
         uint256 size;
-        uint256[6][pool_max] formats;
+        uint256[6][pool_capacity] formats;
     }
     HeroFormationPool hfp;
 
     constructor() {
-        uint256[6][pool_max] memory _formats;
+        uint256[6][pool_capacity] memory _formats;
         hfp = HeroFormationPool(1, block.timestamp, 0, _formats);
         beneficiary = msg.sender;
     }
@@ -114,7 +115,7 @@ contract RarityArena {
         if (block.timestamp.sub(hfp.season_log) > season_duration) {
             new_season();
         }
-        if (hfp.size < pool_max) {
+        if (hfp.size < pool_max_size) {
             _add_format_to_pool(my_format);
         }
     }
@@ -165,6 +166,10 @@ contract RarityArena {
         require(block.timestamp.sub(hfp.season_log) > season_duration);
         _distribute_reward();
         _reset_hfp();
+        daily_reward = daily_reward.mul(97).div(100);
+        if(pool_max_size < 8000) {
+            pool_max_size *= 2;
+        }
     }
 
     function _distribute_reward() private {
@@ -190,7 +195,7 @@ contract RarityArena {
 
     function _add_format_to_pool(uint256[6] calldata _format) internal {
         require(
-            hfp.size < pool_max,
+            hfp.size < pool_max_size,
             "The pool is full, please wait for next season"
         );
         require(_check_format(_format), "Your hero formation unqualified");
